@@ -1,3 +1,8 @@
+-- creando base de datos jagueraha
+CREATE DATABASE jagueraha;
+
+\connect jagueraha
+
 -- Crear tabla de ciudades
 create table ciudades (
     id serial primary key,
@@ -117,3 +122,4 @@ create table pedidos (
     fecha_pedido timestamp default current_timestamp not null,
     estado varchar(30) default 'pendiente' not null
 );
+
