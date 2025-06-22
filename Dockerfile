@@ -2,7 +2,7 @@
 FROM tomcat:9
 
 RUN rm -rf /usr/local/tomcat/webapps/*
-COPY Jagueraha.war /usr/local/tomcat/webapps/Jagueraha.war
+COPY Jagueraha3.war /usr/local/tomcat/webapps/Jagueraha.war
 
 # Expose default Tomcat ports (not used to publish but for documentation)
 EXPOSE 8080 8005 8009
