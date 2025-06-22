@@ -1,9 +1,14 @@
 services:
   tomcat:
-    build: .
-    container_name: my_tomcat
+    build:
+      context: .
+      target: tomcat-run
+    container_name: tomcat-app
     ports:
       - "8080:8080"
+    volumes:
+      - ./war_export:/usr/local/tomcat/export/
+
     networks:
       - backend
     depends_on:
