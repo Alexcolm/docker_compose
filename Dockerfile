@@ -11,7 +11,8 @@ RUN ls -alh /app/target/
 ###########################################
 # ----- Corriendo tomcat----------------- #
 ###########################################
-FROM tomcat:9-jdk17 AS tomcat-run
+#FROM tomcat:9-jdk17 AS tomcat-run
+FROM tomcat:10.1 AS tomcat-run
 
 RUN rm -rf /usr/local/tomcat/webapps/*
 
