@@ -4,9 +4,7 @@
 FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY NetBeans/JaguerahaV3/ /app
-RUN ls -alh /app/target/
 RUN mvn clean package -DskipTests
-RUN ls -alh /app/target/
 
 ###########################################
 # ----- Corriendo tomcat----------------- #

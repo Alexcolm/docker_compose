@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./war_export:/usr/local/tomcat/export/
+      - maven-cache:/root/.m2 
 
     networks:
       - backend
@@ -62,6 +62,7 @@ services:
 
 volumes:
   pgdata:
+  maven-cache:
 
 networks:
   backend:
