@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="en">
     <%@ include file="header.jsp" %>
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6"><h3 class="mb-0">Gestión de Clientes</h3></div>
+                <div class="col-sm-6">
+                    <!-- Espacio para posibles elementos adicionales en el encabezado -->
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="app-content">
         <div class="botones"  style="display: flex; justify-content: center; align-items: center; padding: 10px;">
             <button type="button" class="Modal btn btn-success" data-toggle="modal" data-target="#exampleModal" onclick="nuevoRegistro()">
@@ -80,10 +90,10 @@
 
             $(document).ready(function () {
                 rellenar();
-                // Resetear el formulario al cerrar el modal con el botón "Cerrar"
+              
                 $("#cerrar").click(function() {
-                    nuevoRegistro(); // Llama a la función que resetea el formulario
-                    $('#exampleModal').modal('hide'); // Asegura que el modal se cierre
+                    nuevoRegistro(); 
+                    $('#exampleModal').modal('hide'); 
                 });
             });
 
@@ -94,7 +104,7 @@
             }
 
             $("#guardarRegistro").click(function () {
-                // Validación básica de campos vacíos en el cliente
+                
                 const empresa = $("#Empresa").val().trim();
                 const ruc = $("#RUC").val().trim();
                 const contacto = $("#contacto").val().trim();
@@ -106,7 +116,6 @@
                     return;
                 }
 
-                // Validación simple de formato de email (el input type="email" ya ayuda)
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
                     alert("Por favor, introduce un correo electrónico válido.");
                     return;
@@ -116,12 +125,11 @@
                 $.ajax({
                     data: datosform,
                     url: '../controles/Clientes_control.jsp',
-                    type: 'post', // Asegurarse de que coincida con el controlador
+                    type: 'post', 
                     beforeSend: function () {
-                        // Opcional: mostrar un spinner o mensaje de carga
                     },
                     success: function (response) {
-                        const trimmedResponse = response.trim(); // Limpiar la respuesta
+                        const trimmedResponse = response.trim();
 
                         if (trimmedResponse === "empresa_existe") {
                             alert("Error: Ya existe un cliente con ese NOMBRE DE EMPRESA.");
@@ -137,10 +145,10 @@
                             alert("Error de formato en el ID del cliente. Por favor, contacte a soporte.");
                         } else if (trimmedResponse === "error_inesperado") {
                             alert("Ocurrió un error inesperado. Por favor, intente de nuevo o contacte a soporte.");
-                        } else if (trimmedResponse === "exito") { // Cambiado de "success" a "exito"
+                        } else if (trimmedResponse === "exito") {
                             $('#exampleModal').modal('hide');
                             rellenar();
-                            nuevoRegistro(); // Resetear el formulario después de guardar/modificar con éxito
+                            nuevoRegistro();
                         } else {
                             alert("Respuesta inesperada del servidor: " + response);
                             console.log("Respuesta completa del servidor:", response);
@@ -161,13 +169,13 @@
                 $("#telefono").val(telefono);
                 $("#correo").val(correo);
                 $("#campo").val("modificar");
-                $('#exampleModal').modal('show'); // Abrir el modal para edición
+                $('#exampleModal').modal('show');
             }
 
             function nuevoRegistro() {
-                $("#form")[0].reset(); // Resetea todos los campos del formulario
-                $("#campo").val("guardar"); // Asegura que el campo oculto "campo" sea "guardar"
-                $("#pk").val(""); // Limpia el pk
+                $("#form")[0].reset();
+                $("#campo").val("guardar");
+                $("#pk").val(""); 
             }
 
             function dell(id) {
@@ -179,11 +187,11 @@
                 if (idClienteEliminar !== null) {
                     $.ajax({
                         url: '../controles/Clientes_control.jsp',
-                        type: 'GET', // La eliminación se puede hacer por GET o POST, asegúrate de que el controlador lo acepte
+                        type: 'GET', 
                         data: {campo: 'eliminar', pk: idClienteEliminar},
                         success: function (response) {
                             const trimmedResponse = response.trim();
-                            if (trimmedResponse === "exito") { // Cambiado de "success" a "exito"
+                            if (trimmedResponse === "exito") {
                                 $('#confirmarEliminarModal').modal('hide');
                                 rellenar();
                                 idClienteEliminar = null;

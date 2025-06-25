@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="en">
     <%@ include file="header.jsp" %>
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6"><h3 class="mb-0">Gestión de Combustibles</h3></div>
+                <div class="col-sm-6">
+                    <!-- Espacio para posibles elementos adicionales en el encabezado -->
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="app-content">
         <div class="botones" style="display: flex; justify-content: center; align-items: center; padding: 10px;">
             <button type="button" class="Modal btn btn-success" data-toggle="modal" data-target="#combustibleModal" onclick="nuevoCombustible()">
@@ -90,7 +100,6 @@
             }
 
             $("#guardarCombustible").click(function () {
-                // Validación básica de campos vacíos en el cliente
                 const nombreCombustible = $("#nombreCombustible").val().trim();
                 const precioLitro = $("#precioLitro").val().trim();
 
@@ -113,21 +122,20 @@
                     url: '../controles/Combustible_control.jsp',
                     type: 'post',
                     beforeSend: function () {
-                        // Opcional: mostrar un spinner o mensaje de carga
                     },
                     success: function (response) {
-                        const trimmedResponse = response.trim(); // Eliminar espacios en blanco
+                        const trimmedResponse = response.trim();
                         if (trimmedResponse === "nombre_existe") {
                             alert("Error: Ya existe un combustible con ese nombre.");
                         } else if (trimmedResponse === "error_bd") {
                             alert("Ocurrió un error en la base de datos al intentar guardar/modificar el combustible.");
                         } else if (trimmedResponse === "error_formato_precio") {
                             alert("Error: El formato del precio por litro no es válido.");
-                        } else if (trimmedResponse === "exito") { // Asumir éxito si la respuesta es "exito"
-                            $("#cerrarCombustibleModal").click(); // Cierra el modal y resetea el formulario
-                            rellenarCombustibles(); // Recarga la tabla de combustibles
+                        } else if (trimmedResponse === "exito") { 
+                            $("#cerrarCombustibleModal").click();
+                            rellenarCombustibles(); 
                         } else {
-                            // En caso de una respuesta inesperada del servidor
+                            
                             alert("Respuesta inesperada del servidor: " + response);
                             console.log("Respuesta completa del servidor:", response);
                         }

@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="en">
     <%@include file="header.jsp" %>
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6"><h3 class="mb-0">Gestión de Personales</h3></div>
+                <div class="col-sm-6">
+                    <!-- Espacio para posibles elementos adicionales en el encabezado -->
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="app-content">
         <!--begin::Container-->
         <div class="botones" style="display: flex; justify-content: center; align-items: center; padding: 10px;">

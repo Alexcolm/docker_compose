@@ -8,11 +8,11 @@
 <%
     Statement st = null;
     ResultSet rs = null;
-    PreparedStatement ps = null; // Declarar PreparedStatement aquí para cierre en finally
+    PreparedStatement ps = null;
     String tipo = request.getParameter("campo");
     String pk = request.getParameter("pk");
 
-    // Recoger y limpiar el nombre y el precio, si están presentes
+    
     String nombre = request.getParameter("nombreCombustible");
     String precioLitroStr = request.getParameter("precioLitro");
 
@@ -21,7 +21,7 @@
     if (tipo != null) {
         if (tipo.equals("guardar")) {
             try {
-                // 1. Verificar si el nombre del combustible ya existe (case-insensitive)
+                
                 String checkNameSql = "SELECT COUNT(*) FROM combustibles WHERE LOWER(nombre) = LOWER(?)";
                 ps = conn.prepareStatement(checkNameSql);
                 ps.setString(1, nombre);
@@ -31,27 +31,27 @@
                     out.print("nombre_existe");
                     if (checkNameRs != null) checkNameRs.close();
                     if (ps != null) ps.close();
-                    return; // Detener la ejecución si el nombre ya existe
+                    return;
                 }
                 if (checkNameRs != null) checkNameRs.close();
-                if (ps != null) ps.close(); // Cerrar ps antes de reasignar
+                if (ps != null) ps.close(); 
 
-                // 2. Si no hay duplicados, proceder con la inserción
+                
                 String insertSql = "INSERT INTO combustibles(nombre, precio_litro) VALUES(?, ?)";
                 ps = conn.prepareStatement(insertSql);
                 ps.setString(1, nombre);
                 ps.setDouble(2, Double.parseDouble(precioLitroStr));
                 ps.executeUpdate();
-                out.print("exito"); // Indicar que la operación fue exitosa
+                out.print("exito"); 
 
             } catch (SQLException e) {
                 e.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                out.print("error_bd"); // Enviar señal de error de base de datos
+                out.print("error_bd"); 
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.print("error_formato_precio"); // Enviar señal de error de formato de precio
+                out.print("error_formato_precio");
             } finally {
                 if (ps != null) try { ps.close(); } catch (SQLException ignore) {}
             }
@@ -84,7 +84,6 @@
             }
         } else if (tipo.equals("modificar")) {
             try {
-                // 1. Verificar si el nombre del combustible ya existe en OTRO registro (case-insensitive)
                 String checkNameSql = "SELECT COUNT(*) FROM combustibles WHERE LOWER(nombre) = LOWER(?) AND id_combustible <> ?";
                 ps = conn.prepareStatement(checkNameSql);
                 ps.setString(1, nombre);
@@ -98,25 +97,23 @@
                     return;
                 }
                 if (checkNameRs != null) checkNameRs.close();
-                if (ps != null) ps.close(); // Cerrar ps antes de reasignar
-
-                // 2. Si no hay duplicados, proceder con la actualización
+                if (ps != null) ps.close(); 
                 String updateSql = "UPDATE combustibles SET nombre=?, precio_litro=? WHERE id_combustible=?";
                 ps = conn.prepareStatement(updateSql);
                 ps.setString(1, nombre);
                 ps.setDouble(2, Double.parseDouble(precioLitroStr));
                 ps.setInt(3, Integer.parseInt(pk));
                 ps.executeUpdate();
-                out.print("exito"); // Indicar que la operación fue exitosa
+                out.print("exito"); 
 
             } catch (SQLException e) {
                 e.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                out.print("error_bd"); // Enviar señal de error de base de datos
+                out.print("error_bd");
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.print("error_formato_precio"); // Enviar señal de error de formato de precio
+                out.print("error_formato_precio"); 
             } finally {
                 if (ps != null) try { ps.close(); } catch (SQLException ignore) {}
             }
@@ -127,9 +124,9 @@
                 ps.setInt(1, Integer.parseInt(pk));
                 int rowsAffected = ps.executeUpdate();
                 if (rowsAffected > 0) {
-                    out.print("exito"); // Indicar éxito al cliente
+                    out.print("exito");
                 } else {
-                    out.print("no_encontrado"); // Indicar que el registro no fue encontrado
+                    out.print("no_encontrado");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -140,8 +137,6 @@
             }
         }
     }
-
-    // Cerrar la conexión al final del JSP
     if (conn != null && !conn.isClosed()) {
         try { conn.close(); } catch (SQLException ignore) {}
     }

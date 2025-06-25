@@ -6,7 +6,7 @@
     Connection conn = null;
 
     Class.forName("org.postgresql.Driver");
-    conn = DriverManager.getConnection("jdbc:postgresql://postgres_db:5432/jagueraha", "postgres", "admin");
+    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Jagueraha", "postgres", "admin");
     if (conn != null) {
        
     }else{

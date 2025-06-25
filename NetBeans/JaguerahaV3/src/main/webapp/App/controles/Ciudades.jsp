@@ -11,12 +11,12 @@
     response.setHeader("Pragma", "no-cache");
     response.setDateHeader("Expires", 0);
 
-    PreparedStatement ps = null; // Using PreparedStatement for all operations for safety
-    Statement st = null; // Keeping Statement for listing, but PreparedStatement is generally preferred
+    PreparedStatement ps = null; 
+    Statement st = null; 
     ResultSet rs = null;
 
     String tipo = request.getParameter("campo");
-    String ciudad = request.getParameter("ciudad") != null ? request.getParameter("ciudad").trim() : ""; // Trim whitespace
+    String ciudad = request.getParameter("ciudad") != null ? request.getParameter("ciudad").trim() : ""; 
     String pk = request.getParameter("pk");
 
     try {
@@ -28,13 +28,11 @@
 
         switch (tipo) {
             case "guardar":
-                // Server-side validation for empty field
+                
                 if (ciudad.isEmpty()) {
                     out.print("vacio");
                     return;
                 }
-
-                // Check for duplicate city name (case-insensitive)
                 String checkExistSql = "SELECT COUNT(*) FROM Ciudades WHERE LOWER(nombre) = LOWER(?)";
                 ps = conn.prepareStatement(checkExistSql);
                 ps.setString(1, ciudad);
@@ -46,18 +44,16 @@
                 }
                 rs.close();
                 ps.close();
-
-                // Insert new city
                 String insertSql = "INSERT INTO Ciudades(nombre) VALUES(?)";
                 ps = conn.prepareStatement(insertSql);
                 ps.setString(1, ciudad);
                 ps.executeUpdate();
-                out.print("exito"); // Consistent success message
+                out.print("exito"); 
                 break;
 
             case "listar":
                 st = conn.createStatement();
-                rs = st.executeQuery("SELECT id, nombre FROM Ciudades ORDER BY nombre ASC;"); // Order by name for better UX
+                rs = st.executeQuery("SELECT id, nombre FROM Ciudades ORDER BY nombre ASC;");
                 while (rs.next()) { %>
 <tr>
     <td><% out.print(rs.getString("id"));%></td> <%-- Using column names for clarity --%>
@@ -76,7 +72,6 @@
                 break;
 
             case "modificar":
-                // Server-side validation for empty field
                 if (ciudad.isEmpty()) {
                     out.print("vacio");
                     return;
@@ -87,8 +82,6 @@
                     out.print("error: ID para modificar no especificado");
                     return;
                 }
-
-                // Check for duplicate city name for other IDs (case-insensitive)
                 checkExistSql = "SELECT COUNT(*) FROM Ciudades WHERE LOWER(nombre) = LOWER(?) AND id <> ?";
                 ps = conn.prepareStatement(checkExistSql);
                 ps.setString(1, ciudad);
@@ -101,17 +94,15 @@
                 }
                 rs.close();
                 ps.close();
-
-                // Update city
                 String updateSql = "UPDATE Ciudades SET nombre=? WHERE id=?";
                 ps = conn.prepareStatement(updateSql);
                 ps.setString(1, ciudad);
                 ps.setInt(2, Integer.parseInt(pk));
                 int rowsUpdated = ps.executeUpdate();
                 if (rowsUpdated > 0) {
-                    out.print("exito"); // Consistent success message
+                    out.print("exito"); 
                 } else {
-                    out.print("no_encontrado"); // Indicate if record not found for update
+                    out.print("no_encontrado");
                 }
                 break;
 
@@ -126,9 +117,9 @@
                 ps.setInt(1, Integer.parseInt(pk));
                 int rowsDeleted = ps.executeUpdate();
                 if (rowsDeleted > 0) {
-                    out.print("exito"); // Consistent success message
+                    out.print("exito");
                 } else {
-                    out.print("no_encontrado"); // Indicate if record not found for deletion
+                    out.print("no_encontrado");
                 }
                 break;
 
@@ -143,16 +134,15 @@
     } catch (SQLException e) {
         e.printStackTrace();
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        out.print("error_bd"); // Generic database error message
+        out.print("error_bd");
     } catch (Exception e) {
         e.printStackTrace();
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        out.print("error_inesperado"); // Catch any other unexpected errors
+        out.print("error_inesperado");
     } finally {
-        // Close resources in reverse order of creation
-        if (rs != null) try { rs.close(); } catch (SQLException e) { /* Log error if closing fails */ }
-        if (st != null) try { st.close(); } catch (SQLException e) { /* Log error if closing fails */ }
-        if (ps != null) try { ps.close(); } catch (SQLException e) { /* Log error if closing fails */ }
-        if (conn != null) try { conn.close(); } catch (SQLException e) { /* Log error if closing fails */ }
+        if (rs != null) try { rs.close(); } catch (SQLException e) {}
+        if (st != null) try { st.close(); } catch (SQLException e) {}
+        if (ps != null) try { ps.close(); } catch (SQLException e) {}
+        if (conn != null) try { conn.close(); } catch (SQLException e) {}
     }
 %>

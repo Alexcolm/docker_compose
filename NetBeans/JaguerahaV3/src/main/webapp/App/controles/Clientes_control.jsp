@@ -6,7 +6,7 @@
 <%@page import="java.sql.Timestamp" %>
 <%@page import="java.text.SimpleDateFormat" %>
 <%@page import="java.sql.SQLException" %>
-<%@page import="jakarta.servlet.http.HttpServletResponse"%> <%-- Usando Jakarta EE --%>
+<%@page import="jakarta.servlet.http.HttpServletResponse"%>
 
 <%
     response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -16,11 +16,8 @@
     PreparedStatement ps = null;
     Statement st = null;
     ResultSet rs = null;
-
     String tipo = request.getParameter("campo");
     String pk = request.getParameter("pk");
-
-    // Recoger y limpiar parámetros
     String empresa = request.getParameter("Empresa") != null ? request.getParameter("Empresa").trim() : "";
     String ruc = request.getParameter("RUC") != null ? request.getParameter("RUC").trim() : "";
     String contacto = request.getParameter("contacto") != null ? request.getParameter("contacto").trim() : "";
@@ -36,11 +33,8 @@
 
         switch (tipo) {
             case "guardar":
-                // --- Validaciones de duplicados al guardar ---
                 String checkSql;
                 ResultSet checkRs;
-
-                // 1. Verificar Nombre de Empresa (case-insensitive)
                 checkSql = "SELECT COUNT(*) FROM cliente WHERE LOWER(nombre_empresa) = LOWER(?)";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, empresa);
@@ -52,8 +46,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 2. Verificar RUC
                 checkSql = "SELECT COUNT(*) FROM cliente WHERE ruc = ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, ruc);
@@ -65,8 +57,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 3. Verificar Telefono
                 checkSql = "SELECT COUNT(*) FROM cliente WHERE telefono_contacto = ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, telefono);
@@ -79,7 +69,7 @@
                 checkRs.close();
                 ps.close();
 
-                // 4. Verificar Correo (case-insensitive)
+                
                 checkSql = "SELECT COUNT(*) FROM cliente WHERE LOWER(email_contacto) = LOWER(?)";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, correo);
@@ -91,8 +81,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // Si todas las validaciones pasan, proceder con la inserción
                 String insertSql = "INSERT INTO cliente(nombre_empresa, ruc, nombre_contacto, telefono_contacto, email_contacto) VALUES(?, ?, ?, ?, ?)";
                 ps = conn.prepareStatement(insertSql);
                 ps.setString(1, empresa);
@@ -143,10 +131,7 @@
                 break;
 
             case "modificar":
-                // --- Validaciones de duplicados al modificar (excluyendo el propio registro) ---
                 int currentPk = Integer.parseInt(pk);
-
-                // 1. Verificar Nombre de Empresa (case-insensitive)
                 checkSql = "SELECT COUNT(*) FROM cliente WHERE LOWER(nombre_empresa) = LOWER(?) AND id_cliente <> ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, empresa);
@@ -159,8 +144,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 2. Verificar RUC
                 checkSql = "SELECT COUNT(*) FROM cliente WHERE ruc = ? AND id_cliente <> ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, ruc);
@@ -173,8 +156,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 3. Verificar Telefono
                 checkSql = "SELECT COUNT(*) FROM cliente WHERE telefono_contacto = ? AND id_cliente <> ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, telefono);
@@ -187,8 +168,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 4. Verificar Correo (case-insensitive)
                 checkSql = "SELECT COUNT(*) FROM cliente WHERE LOWER(email_contacto) = LOWER(?) AND id_cliente <> ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, correo);
@@ -201,8 +180,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // Si todas las validaciones pasan, proceder con la actualización
                 String updateSql = "UPDATE cliente SET nombre_empresa=?, ruc=?, nombre_contacto=?, telefono_contacto=?, email_contacto=? WHERE id_cliente=?";
                 ps = conn.prepareStatement(updateSql);
                 ps.setString(1, empresa);
@@ -223,7 +200,7 @@
                 if (rowsAffected > 0) {
                     out.print("exito");
                 } else {
-                    out.print("no_encontrado"); // Indicar que no se encontró el registro para eliminar
+                    out.print("no_encontrado");
                 }
                 break;
 
@@ -233,25 +210,25 @@
                 break;
         }
     } catch (NumberFormatException e) {
-        // Manejar error si pk no es un número válido
+        
         e.printStackTrace();
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.print("error_formato_id");
     } catch (SQLException e) {
-        // Manejar errores de SQL
+        
         e.printStackTrace();
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         out.print("error_bd");
     } catch (Exception e) {
-        // Manejar cualquier otra excepción inesperada
+        
         e.printStackTrace();
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         out.print("error_inesperado");
     } finally {
-        // Asegurarse de cerrar todos los recursos de la base de datos
-        if (rs != null) try { rs.close(); } catch (SQLException e) { /* log error */ }
-        if (st != null) try { st.close(); } catch (SQLException e) { /* log error */ }
-        if (ps != null) try { ps.close(); } catch (SQLException e) { /* log error */ }
-        if (conn != null && !conn.isClosed()) try { conn.close(); } catch (SQLException e) { /* log error */ }
+        
+        if (rs != null) try { rs.close(); } catch (SQLException e) {}
+        if (st != null) try { st.close(); } catch (SQLException e) {}
+        if (ps != null) try { ps.close(); } catch (SQLException e) {}
+        if (conn != null && !conn.isClosed()) try { conn.close(); } catch (SQLException e) {}
     }
 %>

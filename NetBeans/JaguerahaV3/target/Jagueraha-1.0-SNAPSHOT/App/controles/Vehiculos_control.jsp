@@ -9,7 +9,7 @@
     ResultSet rs = null;
     PreparedStatement ps = null;
 
-    // Obtener y limpiar todos los parámetros de entrada
+    
     String tipo = request.getParameter("campo") != null ? request.getParameter("campo").trim() : "";
     String pk = request.getParameter("pk") != null ? request.getParameter("pk").trim() : "";
 
@@ -18,12 +18,11 @@
     String chapa = request.getParameter("chapa") != null ? request.getParameter("chapa").trim() : "";
     String capacidadStr = request.getParameter("capacidad") != null ? request.getParameter("capacidad").trim() : "";
     String id_modeloStr = request.getParameter("id_modelo") != null ? request.getParameter("id_modelo").trim() : "";
-    String id_marcaStr = request.getParameter("id_marca") != null ? request.getParameter("id_marca").trim() : ""; // Aunque no se usa directamente para guardar/modificar vehículo, puede ser útil para validación o logs.
-
+    String id_marcaStr = request.getParameter("id_marca") != null ? request.getParameter("id_marca").trim() : ""; 
     int id_modelo = -1;
     double capacidad_litros = -1.0;
 
-    // Intentar parsear los valores numéricos
+   
     try {
         if (!id_modeloStr.isEmpty()) {
             id_modelo = Integer.parseInt(id_modeloStr);
@@ -32,14 +31,13 @@
             capacidad_litros = Double.parseDouble(capacidadStr);
         }
     } catch (NumberFormatException e) {
-        // Ignorar aquí, se manejará en la validación de campos si es necesario.
-        // Podrías loguear e.printStackTrace() para depuración.
+        
     }
 
     if (tipo.isEmpty()) {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.print("operacion_no_especificada");
-        // Asegúrate de cerrar la conexión aquí si sales temprano.
+       
         if (conn != null && !conn.isClosed()) {
             try { conn.close(); } catch (SQLException ignore) {}
         }
@@ -49,22 +47,22 @@
     switch (tipo) {
         case "guardar":
         case "modificar":
-            // --- Validaciones de campos vacíos y formato ---
+            
             if (descripcion.isEmpty() || color.isEmpty() || chapa.isEmpty() || capacidadStr.isEmpty() || id_modeloStr.isEmpty()) {
                 out.print("campos_vacios");
-                break; // Salir del switch
+                break; 
             }
-            if (id_modelo == -1) { // Si la conversión de id_modelo falló o estaba vacío
+            if (id_modelo == -1) { 
                 out.print("marca_modelo_invalidos");
                 break;
             }
-            // Validación de capacidad: debe ser un número válido y mayor a cero
+            
             if (capacidad_litros <= 0) {
                 out.print("capacidad_invalida");
                 break;
             }
 
-            // --- Lógica de duplicados (chapa) ---
+            
             String checkSql = "";
             ResultSet checkRs = null;
             try {
@@ -72,12 +70,12 @@
                     checkSql = "SELECT COUNT(*) FROM Vehiculos WHERE LOWER(chapa) = LOWER(?)";
                     ps = conn.prepareStatement(checkSql);
                     ps.setString(1, chapa);
-                } else { // tipo.equals("modificar")
+                } else { 
                     int currentPk = -1;
                     try {
                         currentPk = Integer.parseInt(pk);
                     } catch (NumberFormatException e) {
-                        out.print("error_formato_id"); // PK no es un número válido
+                        out.print("error_formato_id");
                         break;
                     }
                     checkSql = "SELECT COUNT(*) FROM Vehiculos WHERE LOWER(chapa) = LOWER(?) AND id <> ?";
@@ -89,13 +87,13 @@
                 checkRs.next();
                 if (checkRs.getInt(1) > 0) {
                     out.print("chapa_existe");
-                    break; // Salir del switch
+                    break; 
                 }
-                // Cierra los recursos de la verificación de duplicados
+                
                 if (checkRs != null) checkRs.close();
                 if (ps != null) ps.close();
 
-                // Si las validaciones y comprobaciones de duplicados pasan, procede con la operación
+                
                 if (tipo.equals("guardar")) {
                     String insertSql = "INSERT INTO Vehiculos(descripcion, color, chapa, capacidad_litros, id_modelo) VALUES(?, ?, ?, ?, ?)";
                     ps = conn.prepareStatement(insertSql);
@@ -106,8 +104,8 @@
                     ps.setInt(5, id_modelo);
                     ps.executeUpdate();
                     out.print("exito");
-                } else { // tipo.equals("modificar")
-                    int currentPk = Integer.parseInt(pk); // Ya validado arriba
+                } else { 
+                    int currentPk = Integer.parseInt(pk); 
                     String updateSql = "UPDATE Vehiculos SET descripcion=?, color=?, chapa=?, capacidad_litros=?, id_modelo=? WHERE id=?";
                     ps = conn.prepareStatement(updateSql);
                     ps.setString(1, descripcion);
@@ -124,12 +122,11 @@
                 out.print("error_bd");
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                out.print("error_formato_numerico"); // Error en la conversión de capacidad o PK
+                out.print("error_formato_numerico");
             } catch (Exception e) {
                 e.printStackTrace();
                 out.print("error_inesperado");
             } finally {
-                // Asegurar que los PreparedStatement y ResultSet se cierren en el bloque 'finally'
                 if (checkRs != null) try { checkRs.close(); } catch (SQLException ignore) {}
                 if (ps != null) try { ps.close(); } catch (SQLException ignore) {}
             }
@@ -166,7 +163,7 @@
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                // En este caso, no se envía un mensaje al cliente, simplemente la tabla estará vacía o no se actualizará.
+                
             } finally {
                 if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
                 if (st != null) try { st.close(); } catch (SQLException ignore) {}
@@ -183,7 +180,7 @@
                 if (rowsAffected > 0) {
                     out.print("exito");
                 } else {
-                    out.print("no_encontrado"); // El vehículo no existía o ya fue eliminado
+                    out.print("no_encontrado"); 
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
@@ -231,10 +228,10 @@
                     }
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
-                    // out.print("error_formato_id_marca"); // Podrías enviar esto al cliente si quieres manejarlo específicamente
+                    
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    // out.print("error_bd_modelos");
+                    
                 } finally {
                     if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
                     if (ps != null) try { ps.close(); } catch (SQLException ignore) {}
@@ -248,7 +245,7 @@
             break;
     }
 
-    // Cerrar la conexión al final del JSP
+    
     if (conn != null && !conn.isClosed()) {
         try { conn.close(); } catch (SQLException ignore) {}
     }

@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="en">
     <%@ include file="header.jsp" %>
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6"><h3 class="mb-0">Gestión de Ciudades</h3></div>
+                <div class="col-sm-6">
+                    <!-- Espacio para posibles elementos adicionales en el encabezado -->
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="app-content">
         <div class="botones" style="display: flex; justify-content: center; align-items: center; padding: 10px;">
             <button type="button" class="Modal btn btn-success" data-toggle="modal" data-target="#exampleModal" onclick="nuevoRegistro()">
@@ -65,10 +75,10 @@
         <script>
                 $(document).ready(function () {
                     rellenar();
-                    // Resetear el formulario al cerrar el modal con el botón "Cerrar"
+                   
                     $("#cerrar").click(function() {
-                        nuevoRegistro(); // Llama a la función que resetea el formulario
-                        $('#exampleModal').modal('hide'); // Asegura que el modal se cierre
+                        nuevoRegistro();
+                        $('#exampleModal').modal('hide');
                     });
                 });
 
@@ -79,11 +89,11 @@
                 }
 
                 $("#guardarRegistro").click(function () {
-                    // **Client-side validation for empty field**
+                   
                     const ciudadInput = $("#ciudad").val().trim();
                     if (ciudadInput === "") {
                         alert("El nombre de la ciudad no puede estar vacío.");
-                        return; // Stop the AJAX call if the field is empty
+                        return;
                     }
 
                     datosform = $("#form").serialize();
@@ -92,35 +102,35 @@
                         url: '../controles/Ciudades.jsp',
                         type: 'post',
                         beforeSend: function () {
-                            //$("#resultado").html("Procesando, espere por favor..."); // Consider using a more robust loading indicator
+                           
                         },
                         success: function (response) {
                             const trimmedResponse = response.trim();
                             if (trimmedResponse === "existe") {
                                 alert("Error: Ya existe una ciudad con ese nombre.");
-                            } else if (trimmedResponse === "vacio") { // Handle server-side empty check
+                            } else if (trimmedResponse === "vacio") { 
                                 alert("Error: El nombre de la ciudad no puede estar vacío (server-side check).");
-                            } else if (trimmedResponse === "exito") { // Changed "success" to "exito" for consistency
-                                $('#exampleModal').modal('hide'); // Close modal directly
+                            } else if (trimmedResponse === "exito") {
+                                $('#exampleModal').modal('hide');
                                 rellenar();
-                                nuevoRegistro(); // Reset the form after successful save/update
+                                nuevoRegistro(); 
                             } else {
                                 alert("Respuesta inesperada del servidor: " + response);
-                                console.log("Respuesta completa del servidor:", response); // Log unexpected responses for debugging
+                                console.log("Respuesta completa del servidor:", response);
                             }
                         },
-                        error: function (jqXHR, textStatus, errorThrown) { // Enhanced error handling
+                        error: function (jqXHR, textStatus, errorThrown) {
                             console.error("Error de comunicación con el servidor:", textStatus, errorThrown, jqXHR.responseText);
                             alert("Ocurrió un error al intentar guardar la ciudad. Por favor, intente de nuevo.");
                         }
                     });
                 });
 
-                function datosModif(id, ciudadNombre) { // Renamed 'c' to 'ciudadNombre' for clarity
+                function datosModif(id, ciudadNombre) {
                     $("#pk").val(id);
                     $("#ciudad").val(ciudadNombre);
-                    $("#campo").val("modificar"); // Ensure 'campo' is set to 'modificar'
-                    $('#exampleModal').modal('show'); // Open the modal for editing
+                    $("#campo").val("modificar"); 
+                    $('#exampleModal').modal('show');
                 }
 
                 function nuevoRegistro() {
@@ -129,10 +139,10 @@
                     $("#pk").val("");
                 }
 
-                var idCiudadEliminar = null; // Renamed variable for clarity
+                var idCiudadEliminar = null;
 
 
-                function dell(id) { // Renamed 'a' to 'id'
+                function dell(id) { 
                     idCiudadEliminar = id;
                     $('#confirmarEliminarModal').modal('show');
                 }
@@ -143,19 +153,19 @@
                             url: '../controles/Ciudades.jsp',
                             type: 'GET',
                             data: {campo: 'eliminar', pk: idCiudadEliminar},
-                            success: function (response) { // Changed 'data' to 'response'
+                            success: function (response) { 
                                 const trimmedResponse = response.trim();
-                                if (trimmedResponse === "exito") { // Consistency
+                                if (trimmedResponse === "exito") { 
                                     $('#confirmarEliminarModal').modal('hide');
                                     rellenar();
                                     idCiudadEliminar = null;
-                                } else if (trimmedResponse === "error") { // Handle potential server-side errors
+                                } else if (trimmedResponse === "error") {
                                     alert('Error al eliminar la ciudad en el servidor.');
                                 } else {
                                     alert('Respuesta inesperada al eliminar: ' + response);
                                 }
                             },
-                            error: function (jqXHR, textStatus, errorThrown) { // Enhanced error handling
+                            error: function (jqXHR, textStatus, errorThrown) {
                                 console.error("Error de comunicación al eliminar:", textStatus, errorThrown, jqXHR.responseText);
                                 alert('Error de comunicación al eliminar la ciudad.');
                             }
@@ -165,6 +175,5 @@
         </script>
         </div>
     </main>
-</div>
 
 <%@ include file="footer.jsp" %>

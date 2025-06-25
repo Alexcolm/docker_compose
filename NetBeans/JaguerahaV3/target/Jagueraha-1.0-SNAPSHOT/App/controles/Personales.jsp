@@ -20,9 +20,7 @@
     String correo = request.getParameter("correo");
     String telefono = request.getParameter("telefono");
     String estado = request.getParameter("estado");
-    String pk = request.getParameter("pk"); // ID del personal (para modificar/eliminar)
-
-    // Limpiar espacios en blanco para una mejor validación
+    String pk = request.getParameter("pk");
     if (cedula != null) cedula = cedula.trim();
     if (nombre != null) nombre = nombre.trim();
     if (cargo != null) cargo = cargo.trim();
@@ -32,7 +30,7 @@
 
 
     if (tipo == null) {
-        // No hay tipo de operación especificado, retornar.
+        
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.print("Tipo de operación no especificado.");
         return;
@@ -41,11 +39,8 @@
     try {
         switch (tipo) {
             case "guardar":
-                // *** Validaciones de duplicados al guardar ***
                 String checkSql;
                 ResultSet checkRs;
-
-                // 1. Verificar Cedula
                 checkSql = "SELECT COUNT(*) FROM Personales WHERE cedula = ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, cedula);
@@ -57,8 +52,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 2. Verificar Telefono
                 checkSql = "SELECT COUNT(*) FROM Personales WHERE telefono = ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, telefono);
@@ -70,8 +63,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 3. Verificar Correo (case-insensitive)
                 checkSql = "SELECT COUNT(*) FROM Personales WHERE LOWER(correo) = LOWER(?)";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, correo);
@@ -83,8 +74,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 4. Verificar Nombre (case-insensitive)
                 checkSql = "SELECT COUNT(*) FROM Personales WHERE LOWER(nombre_completo) = LOWER(?)";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, nombre);
@@ -96,9 +85,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-
-                // Si todas las validaciones pasan, proceder con la inserción
                 String insertSql = "INSERT INTO Personales(cedula, nombre_completo, cargo, telefono, estado, correo) VALUES(?, ?, ?, ?, ?, ?)";
                 ps = conn.prepareStatement(insertSql);
                 ps.setString(1, cedula);
@@ -108,12 +94,12 @@
                 ps.setString(5, estado);
                 ps.setString(6, correo);
                 ps.executeUpdate();
-                out.print("exito"); // Indicar éxito al cliente
+                out.print("exito"); 
                 break;
 
             case "listar":
                 st = conn.createStatement();
-                rs = st.executeQuery("SELECT id, cedula, nombre_completo, cargo, telefono, estado, correo, fecha_registro FROM Personales ORDER BY id DESC"); // Ordenar por ID descendente
+                rs = st.executeQuery("SELECT id, cedula, nombre_completo, cargo, telefono, estado, correo, fecha_registro FROM Personales ORDER BY id DESC"); 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
                 while (rs.next()) {
@@ -156,8 +142,6 @@
                 break;
 
             case "modificar":
-                // *** Validaciones de duplicados al modificar (excluyendo el propio registro) ***
-                // 1. Verificar Cedula
                 checkSql = "SELECT COUNT(*) FROM Personales WHERE cedula = ? AND id <> ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, cedula);
@@ -170,8 +154,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 2. Verificar Telefono
                 checkSql = "SELECT COUNT(*) FROM Personales WHERE telefono = ? AND id <> ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, telefono);
@@ -184,8 +166,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 3. Verificar Correo (case-insensitive)
                 checkSql = "SELECT COUNT(*) FROM Personales WHERE LOWER(correo) = LOWER(?) AND id <> ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, correo);
@@ -198,8 +178,6 @@
                 }
                 checkRs.close();
                 ps.close();
-
-                // 4. Verificar Nombre (case-insensitive)
                 checkSql = "SELECT COUNT(*) FROM Personales WHERE LOWER(nombre_completo) = LOWER(?) AND id <> ?";
                 ps = conn.prepareStatement(checkSql);
                 ps.setString(1, nombre);
@@ -213,7 +191,7 @@
                 checkRs.close();
                 ps.close();
 
-                // Si todas las validaciones pasan, proceder con la actualización
+                
                 String updateSql = "UPDATE Personales SET cedula=?, nombre_completo=?, cargo=?, telefono=?, correo=?, estado=? WHERE id=?";
                 ps = conn.prepareStatement(updateSql);
                 ps.setString(1, cedula);
@@ -224,7 +202,7 @@
                 ps.setString(6, estado);
                 ps.setInt(7, Integer.parseInt(pk));
                 ps.executeUpdate();
-                out.print("exito"); // Indicar éxito al cliente
+                out.print("exito"); 
                 break;
 
             case "eliminar":
@@ -247,13 +225,12 @@
     } catch (SQLException e) {
         e.printStackTrace();
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        out.print("error_bd"); // Error genérico de base de datos
+        out.print("error_bd"); 
     } catch (NumberFormatException e) {
         e.printStackTrace();
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        out.print("error_formato_id"); // Error si PK no es un número
+        out.print("error_formato_id");
     } finally {
-        // Asegurarse de cerrar todos los recursos
         if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
         if (st != null) try { st.close(); } catch (SQLException ignore) {}
         if (ps != null) try { ps.close(); } catch (SQLException ignore) {}

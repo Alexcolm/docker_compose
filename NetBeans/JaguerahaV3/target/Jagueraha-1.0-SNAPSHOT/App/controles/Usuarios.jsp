@@ -9,7 +9,7 @@
 <%
     Statement st = null;
     ResultSet rs = null;
-    PreparedStatement ps = null; // Declarar PreparedStatement aquí para cierre en finally
+    PreparedStatement ps = null; 
 
     String tipo = request.getParameter("campo");
     String nombre = request.getParameter("nombre");
@@ -17,14 +17,14 @@
     String contra = request.getParameter("contra");
     String pk = request.getParameter("pk");
 
-    // Limpiar espacios en blanco al inicio y al final para una mejor validación
+    
     if (nombre != null) nombre = nombre.trim();
     if (usuario != null) usuario = usuario.trim();
 
     if (tipo != null) {
         if (tipo.equals("guardar")) {
             try {
-                // 1. Verificar si el usuario ya existe (case-insensitive)
+               
                 String checkUserSql = "SELECT COUNT(*) FROM Usuarios WHERE LOWER(usuario) = LOWER(?)";
                 ps = conn.prepareStatement(checkUserSql);
                 ps.setString(1, usuario);
@@ -34,12 +34,12 @@
                     out.print("usuario_existe");
                     if (checkUserRs != null) checkUserRs.close();
                     if (ps != null) ps.close();
-                    return; // Detener la ejecución si el usuario ya existe
+                    return; 
                 }
                 if (checkUserRs != null) checkUserRs.close();
-                if (ps != null) ps.close(); // Cerrar ps antes de reasignar
+                if (ps != null) ps.close(); 
 
-                // 2. Verificar si el nombre ya existe (case-insensitive)
+                
                 String checkNameSql = "SELECT COUNT(*) FROM Usuarios WHERE LOWER(nombre) = LOWER(?)";
                 ps = conn.prepareStatement(checkNameSql);
                 ps.setString(1, nombre);
@@ -49,38 +49,36 @@
                     out.print("nombre_existe");
                     if (checkNameRs != null) checkNameRs.close();
                     if (ps != null) ps.close();
-                    return; // Detener la ejecución si el nombre ya existe
+                    return;
                 }
                 if (checkNameRs != null) checkNameRs.close();
-                if (ps != null) ps.close(); // Cerrar ps antes de reasignar
+                if (ps != null) ps.close(); 
 
-                // 3. Si no hay duplicados, proceder con la inserción
+                
                 String insertSql = "INSERT INTO Usuarios(nombre, usuario, contrasena) VALUES(?, ?, ?)";
                 ps = conn.prepareStatement(insertSql);
                 ps.setString(1, nombre);
                 ps.setString(2, usuario);
                 ps.setString(3, contra);
                 ps.executeUpdate();
-                out.print("exito"); // Indicar que la operación fue exitosa
-
+                out.print("exito"); 
             } catch (SQLException e) {
                 e.printStackTrace();
-                out.print("error_bd"); // Enviar señal de error de base de datos
+                out.print("error_bd"); 
             } finally {
-                // Asegúrate de que ps se cierra aquí, incluso si se cerró antes en el return
+                
                 if (ps != null) try { ps.close(); } catch (SQLException ignore) {}
             }
         } else if (tipo.equals("listar")) {
             try {
                 st = conn.createStatement();
-                rs = st.executeQuery("SELECT id, nombre, usuario, contrasena, fecha_registro FROM Usuarios ORDER BY id DESC"); // Agregado ORDER BY para mejor visualización
+                rs = st.executeQuery("SELECT id, nombre, usuario, contrasena, fecha_registro FROM Usuarios ORDER BY id DESC"); 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 while (rs.next()) {
                     int id = rs.getInt("id");
                     String nom = rs.getString("nombre");
                     String user = rs.getString("usuario");
-                    // No pasar la contraseña directamente si no es necesario para la edición
-                    String pass = rs.getString("contrasena"); // Para la edición, si se envía de nuevo
+                    String pass = rs.getString("contrasena"); 
                     Timestamp fechaCreacion = rs.getTimestamp("fecha_registro");
                     String fechaFormateada = "";
                     if (fechaCreacion != null) {
@@ -115,7 +113,7 @@
             }
         } else if (tipo.equals("modificar")) {
             try {
-                // 1. Verificar si el usuario ya existe en OTRO registro (case-insensitive)
+                
                 String checkUserSql = "SELECT COUNT(*) FROM Usuarios WHERE LOWER(usuario) = LOWER(?) AND id <> ?";
                 ps = conn.prepareStatement(checkUserSql);
                 ps.setString(1, usuario);
@@ -129,9 +127,9 @@
                     return;
                 }
                 if (checkUserRs != null) checkUserRs.close();
-                if (ps != null) ps.close(); // Cerrar ps antes de reasignar
+                if (ps != null) ps.close(); 
 
-                // 2. Verificar si el nombre ya existe en OTRO registro (case-insensitive)
+                
                 String checkNameSql = "SELECT COUNT(*) FROM Usuarios WHERE LOWER(nombre) = LOWER(?) AND id <> ?";
                 ps = conn.prepareStatement(checkNameSql);
                 ps.setString(1, nombre);
@@ -145,9 +143,7 @@
                     return;
                 }
                 if (checkNameRs != null) checkNameRs.close();
-                if (ps != null) ps.close(); // Cerrar ps antes de reasignar
-
-                // 3. Si no hay duplicados, proceder con la actualización
+                if (ps != null) ps.close(); 
                 String updateSql = "UPDATE Usuarios SET nombre=?, usuario=?, contrasena=? WHERE id=?";
                 ps = conn.prepareStatement(updateSql);
                 ps.setString(1, nombre);
@@ -155,22 +151,21 @@
                 ps.setString(3, contra);
                 ps.setInt(4, Integer.parseInt(pk));
                 ps.executeUpdate();
-                out.print("exito"); // Indicar que la operación fue exitosa
+                out.print("exito"); 
 
             } catch (SQLException e) {
                 e.printStackTrace();
-                out.print("error_bd"); // Enviar señal de error de base de datos
+                out.print("error_bd");
             } finally {
-                 // Asegúrate de que ps se cierra aquí, incluso si se cerró antes en el return
                 if (ps != null) try { ps.close(); } catch (SQLException ignore) {}
             }
         } else if (tipo.equals("eliminar")) {
             try {
                 String sql = "DELETE FROM Usuarios WHERE id=?";
-                ps = conn.prepareStatement(sql); // Usar PreparedStatement para eliminar también
+                ps = conn.prepareStatement(sql); 
                 ps.setInt(1, Integer.parseInt(pk));
                 ps.executeUpdate();
-                out.print("exito"); // Indicar éxito al cliente
+                out.print("exito"); 
             } catch (SQLException e) {
                 e.printStackTrace();
                 out.print("error_bd");
@@ -179,8 +174,6 @@
             }
         }
     }
-
-    // Cerrar la conexión al final del JSP
     if (conn != null && !conn.isClosed()) {
         try { conn.close(); } catch (SQLException ignore) {}
     }
